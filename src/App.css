@@ -2,6 +2,31 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 40%, #ecfeff 100%);
   color: #0f172a;
+  position: relative;
+  overflow: hidden;
+}
+
+.app::before,
+.app::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 60%);
+  z-index: 0;
+  filter: blur(4px);
+}
+
+.app::before {
+  top: -200px;
+  left: -160px;
+}
+
+.app::after {
+  bottom: -220px;
+  right: -160px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.18), transparent 60%);
 }
 
 .toolbar {
@@ -13,6 +38,7 @@
   align-items: center;
   gap: 24px;
   position: relative;
+  z-index: 1;
 }
 
 .toolbar h1 {
@@ -107,6 +133,8 @@
   gap: 24px;
   align-items: start;
   height: calc(100vh - 150px);
+  position: relative;
+  z-index: 1;
 }
 
 .editor {
@@ -118,6 +146,7 @@
   height: 100%;
   overflow: auto;
   position: relative;
+  backdrop-filter: blur(6px);
 }
 
 .form-section {
@@ -265,6 +294,7 @@
   height: 100%;
   overflow: auto;
   position: relative;
+  backdrop-filter: blur(6px);
 }
 
 .preview-header {
