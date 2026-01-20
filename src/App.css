@@ -221,8 +221,26 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.field select {
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #f0f9ff;
+  color: #0f172a;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 .field input:focus,
 .field textarea:focus {
+  outline: 2px solid #2563eb33;
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.12);
+}
+
+.field select:focus {
   outline: 2px solid #2563eb33;
   border-color: #2563eb;
   background: #ffffff;
@@ -447,6 +465,56 @@ ul {
 
 .award-list {
   margin-top: 6px;
+}
+
+.ai-section {
+  background: linear-gradient(135deg, #f8fafc, #ecfeff);
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.ai-badge {
+  background: linear-gradient(135deg, #22c55e, #10b981);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ai-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.ai-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #475569;
+}
+
+.ai-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #b91c1c;
+}
+
+.ai-result {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.ai-result pre {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 12px;
 }
 
 .editor::-webkit-scrollbar,

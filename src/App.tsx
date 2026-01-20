@@ -119,6 +119,8 @@ const normalizeUrl = (value: string) => {
   return value.startsWith("http") ? value : `https://${value}`;
 };
 
+type AiTarget = "summary" | "skills" | "experience" | "project" | "awards";
+
 const createPdfStyles = (scaleValue: number) => {
   const scale = scaleValue || 1;
   return StyleSheet.create({
@@ -364,6 +366,15 @@ const App = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [resume, setResume] = useState<ResumeData>(initialResume);
   const [scale, setScale] = useState(1);
+  const [aiTarget, setAiTarget] = useState<AiTarget>("summary");
+  const [aiTargetIndex, setAiTargetIndex] = useState(0);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiResult, setAiResult] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const openAiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+  const openAiModel =
+    (import.meta.env.VITE_OPENAI_MODEL as string | undefined) ?? "gpt-4o-mini";
 
   const recomputeScale = useCallback(() => {
     const sheet = resumeRef.current;
@@ -555,6 +566,102 @@ const App = () => {
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const buildAiPrompt = () => {
+    const nameLine = resume.name ? `Candidate: ${resume.name}` : "";
+    const titleLine = resume.title ? `Target role: ${resume.title}` : "";
+    const baseContext = [nameLine, titleLine].filter(Boolean).join("\n");
+
+    if (aiTarget === "summary") {
+      return `${baseContext}\nWrite a 2-3 sentence professional resume summary in a confident tone. Avoid buzzwords.`;
+    }
+    if (aiTarget === "skills") {
+      return `${baseContext}\nSuggest a concise, comma-separated skills list relevant to the role.`;
+    }
+    if (aiTarget === "experience") {
+      const experience = resume.experiences[aiTargetIndex];
+      const context = experience
+        ? `Role: ${experience.title}\nCompany: ${experience.company}\nDates: ${experience.dates}`
+        : "Role details not provided.";
+      return `${baseContext}\n${context}\nWrite 3-5 achievement-focused bullet points with measurable impact.`;
+    }
+    if (aiTarget === "project") {
+      const project = resume.projects[aiTargetIndex];
+      const context = project
+        ? `Project: ${project.name}\nLink: ${project.link}`
+        : "Project details not provided.";
+      return `${baseContext}\n${context}\nWrite 2-3 concise bullets that explain the project impact and tech used.`;
+    }
+    return `${baseContext}\nCreate 2-3 resume award entries in a clean format.`;
+  };
+
+  const handleGenerateAi = async () => {
+    if (!openAiKey) {
+      setAiError("Missing VITE_OPENAI_API_KEY in .env.");
+      return;
+    }
+    if (aiLoading) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const prompt = [buildAiPrompt(), aiPrompt.trim()]
+        .filter(Boolean)
+        .join("\n\nAdditional instructions:\n");
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openAiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: openAiModel,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a resume writing assistant. Provide concise, professional output only.",
+            },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.4,
+        }),
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "OpenAI request failed.");
+      }
+      const data = (await response.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+      const content = data.choices?.[0]?.message?.content?.trim() ?? "";
+      setAiResult(content);
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : "AI request failed.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyAi = () => {
+    if (!aiResult.trim()) return;
+    if (aiTarget === "summary") {
+      setResume((prev) => ({ ...prev, summary: aiResult.trim() }));
+      return;
+    }
+    if (aiTarget === "skills") {
+      setResume((prev) => ({ ...prev, skills: aiResult.trim() }));
+      return;
+    }
+    if (aiTarget === "awards") {
+      setResume((prev) => ({ ...prev, awards: aiResult.trim() }));
+      return;
+    }
+    if (aiTarget === "experience") {
+      updateExperience(aiTargetIndex, "bullets", splitLines(aiResult));
+      return;
+    }
+    updateProject(aiTargetIndex, "bullets", splitLines(aiResult));
   };
 
   const updateExperience = (
@@ -1012,6 +1119,88 @@ const App = () => {
                 }
               />
             </div>
+          </section>
+
+          <section className="form-section ai-section">
+            <div className="section-header">
+              <h3>AI Writing Helper</h3>
+              <span className="ai-badge">GPT</span>
+            </div>
+            <div className="field">
+              <label htmlFor="ai-target">Target section</label>
+              <select
+                id="ai-target"
+                value={aiTarget}
+                onChange={(event) =>
+                  setAiTarget(event.target.value as AiTarget)
+                }
+              >
+                <option value="summary">Summary</option>
+                <option value="skills">Skills</option>
+                <option value="experience">Experience bullets</option>
+                <option value="project">Project bullets</option>
+                <option value="awards">Awards</option>
+              </select>
+            </div>
+            {(aiTarget === "experience" || aiTarget === "project") && (
+              <div className="field">
+                <label htmlFor="ai-target-index">Choose item</label>
+                <select
+                  id="ai-target-index"
+                  value={aiTargetIndex}
+                  onChange={(event) => setAiTargetIndex(Number(event.target.value))}
+                >
+                  {(aiTarget === "experience"
+                    ? resume.experiences
+                    : resume.projects
+                  ).map((item, index) => (
+                    <option key={`ai-item-${index}`} value={index}>
+                      {aiTarget === "experience"
+                        ? `${item.title || "Role"} - ${item.company || "Company"}`
+                        : item.name || `Project ${index + 1}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="field">
+              <label htmlFor="ai-prompt">Extra instructions (optional)</label>
+              <textarea
+                id="ai-prompt"
+                rows={3}
+                placeholder="Example: Focus on leadership and quantified impact."
+                value={aiPrompt}
+                onChange={(event) => setAiPrompt(event.target.value)}
+              />
+            </div>
+            <div className="ai-actions">
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={handleGenerateAi}
+                disabled={aiLoading}
+              >
+                {aiLoading ? "Generating..." : "Generate suggestions"}
+              </button>
+              <button
+                type="button"
+                className="download-button"
+                onClick={handleApplyAi}
+                disabled={!aiResult.trim()}
+              >
+                Apply to form
+              </button>
+            </div>
+            {!openAiKey && (
+              <p className="ai-note">Add VITE_OPENAI_API_KEY in a .env file.</p>
+            )}
+            {aiError && <p className="ai-error">{aiError}</p>}
+            {aiResult && (
+              <div className="ai-result">
+                <strong>Suggestion</strong>
+                <pre>{aiResult}</pre>
+              </div>
+            )}
           </section>
         </aside>
 
