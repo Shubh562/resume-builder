@@ -114,6 +114,11 @@ const splitLines = (value: string) =>
     .map((line) => line.trim())
     .filter(Boolean);
 
+const normalizeUrl = (value: string) => {
+  if (!value) return "";
+  return value.startsWith("http") ? value : `https://${value}`;
+};
+
 const createPdfStyles = (scaleValue: number) => {
   const scale = scaleValue || 1;
   return StyleSheet.create({
@@ -213,14 +218,14 @@ type ResumeDocumentProps = {
 
 const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
   const styles = createPdfStyles(scale);
-  const contactLine = [
-    data.phone,
-    data.email,
-    data.linkedin,
-    data.location,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const contactItems = [
+    { label: data.phone },
+    { label: data.email },
+    data.linkedin
+      ? { label: data.linkedin, href: normalizeUrl(data.linkedin) }
+      : null,
+    { label: data.location },
+  ].filter(Boolean) as { label: string; href?: string }[];
   const skillList = data.skills
     .split(",")
     .map((item) => item.trim())
@@ -233,7 +238,20 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
         <View style={styles.header}>
           <Text style={styles.name}>{data.name}</Text>
           {data.title && <Text style={styles.title}>{data.title}</Text>}
-          {contactLine && <Text style={styles.contact}>{contactLine}</Text>}
+          {contactItems.length > 0 && (
+            <Text style={styles.contact}>
+              {contactItems.map((item, index) => (
+                <Text key={`contact-${index}`}>
+                  {item.href ? (
+                    <Link src={item.href}>{item.label}</Link>
+                  ) : (
+                    item.label
+                  )}
+                  {index < contactItems.length - 1 ? " · " : ""}
+                </Text>
+              ))}
+            </Text>
+          )}
         </View>
 
         {data.summary && (
@@ -578,14 +596,14 @@ const App = () => {
     }));
   };
 
-  const contactLine = [
-    resume.phone,
-    resume.email,
-    resume.linkedin,
-    resume.location,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const contactItems = [
+    { label: resume.phone },
+    { label: resume.email },
+    resume.linkedin
+      ? { label: resume.linkedin, href: normalizeUrl(resume.linkedin) }
+      : null,
+    { label: resume.location },
+  ].filter(Boolean) as { label: string; href?: string }[];
 
   const skillList = resume.skills
     .split(",")
@@ -1013,7 +1031,27 @@ const App = () => {
                   <div>
                     <h2>{resume.name}</h2>
                     {resume.title && <p className="headline">{resume.title}</p>}
-                    {contactLine && <p className="contact-line">{contactLine}</p>}
+                {contactItems.length > 0 && (
+                  <p className="contact-line">
+                    {contactItems.map((item, index) => (
+                      <span key={`contact-${index}`}>
+                        {item.href ? (
+                          <a
+                            className="contact-link"
+                            href={item.href}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {item.label}
+                          </a>
+                        ) : (
+                          item.label
+                        )}
+                        {index < contactItems.length - 1 ? " · " : ""}
+                      </span>
+                    ))}
+                  </p>
+                )}
                   </div>
                 </header>
 
