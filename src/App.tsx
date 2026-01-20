@@ -113,8 +113,8 @@ const createPdfStyles = (scaleValue: number) => {
   return StyleSheet.create({
     page: {
       backgroundColor: "#ffffff",
-      paddingTop: 32 * scale,
-      paddingBottom: 32 * scale,
+      paddingTop: 26 * scale,
+      paddingBottom: 24 * scale,
       paddingHorizontal: 34 * scale,
       fontFamily: "Helvetica",
       fontSize: 9 * scale,
@@ -123,8 +123,8 @@ const createPdfStyles = (scaleValue: number) => {
     header: {
       borderBottomWidth: 2 * scale,
       borderBottomColor: "#e2e8f0",
-      paddingBottom: 10 * scale,
-      marginBottom: 14 * scale,
+      paddingBottom: 8 * scale,
+      marginBottom: 10 * scale,
     },
     name: {
       fontSize: 20 * scale,
@@ -142,14 +142,14 @@ const createPdfStyles = (scaleValue: number) => {
       color: "#475569",
     },
     section: {
-      marginBottom: 12 * scale,
+      marginBottom: 8 * scale,
     },
     sectionTitle: {
       fontSize: 10 * scale,
       fontWeight: 700,
       textTransform: "uppercase",
-      letterSpacing: 0.6 * scale,
-      marginBottom: 6 * scale,
+      letterSpacing: 0.5 * scale,
+      marginBottom: 4 * scale,
       color: "#1e293b",
     },
     paragraph: {
@@ -157,7 +157,7 @@ const createPdfStyles = (scaleValue: number) => {
       lineHeight: 1.4,
     },
     role: {
-      marginBottom: 8 * scale,
+      marginBottom: 5 * scale,
     },
     roleHeader: {
       flexDirection: "row",
@@ -176,26 +176,26 @@ const createPdfStyles = (scaleValue: number) => {
       fontSize: 8.5 * scale,
     },
     list: {
-      marginTop: 6 * scale,
-      paddingLeft: 12 * scale,
+      marginTop: 4 * scale,
+      paddingLeft: 10 * scale,
     },
     listItem: {
       fontSize: 8.5 * scale,
       lineHeight: 1.35,
-      marginBottom: 3 * scale,
+      marginBottom: 2 * scale,
     },
     projectTitle: {
       fontWeight: 600,
       fontSize: 9 * scale,
-      marginBottom: 2 * scale,
+      marginBottom: 1 * scale,
     },
     projectLink: {
       color: "#2563eb",
       fontSize: 8.5 * scale,
-      marginBottom: 2 * scale,
+      marginBottom: 1 * scale,
     },
     education: {
-      marginBottom: 8 * scale,
+      marginBottom: 5 * scale,
     },
   });
 };
