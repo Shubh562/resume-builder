@@ -1374,16 +1374,19 @@ const App = () => {
                     setAiTargetIndex(Number(event.target.value))
                   }
                 >
-                  {(aiTarget === "experience"
-                    ? resume.experiences
-                    : resume.projects
-                  ).map((item, index) => (
-                    <option key={`ai-modal-item-${index}`} value={index}>
-                      {aiTarget === "experience"
-                        ? `${item.title || "Role"} - ${item.company || "Company"}`
-                        : item.name || `Project ${index + 1}`}
-                    </option>
-                  ))}
+                  {aiTarget === "experience"
+                    ? resume.experiences.map((item, index) => (
+                        <option key={`ai-modal-exp-${index}`} value={index}>
+                          {`${item.title || "Role"} - ${
+                            item.company || "Company"
+                          }`}
+                        </option>
+                      ))
+                    : resume.projects.map((item, index) => (
+                        <option key={`ai-modal-proj-${index}`} value={index}>
+                          {item.name || `Project ${index + 1}`}
+                        </option>
+                      ))}
                 </select>
               </div>
             )}
