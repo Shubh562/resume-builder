@@ -378,6 +378,8 @@ const App = () => {
   const [aiResult, setAiResult] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiSettingsOpen, setAiSettingsOpen] = useState(false);
   const [openAiKey, setOpenAiKey] = useState(
     (import.meta.env.VITE_OPENAI_API_KEY as string | undefined) ?? ""
   );
@@ -679,6 +681,15 @@ const App = () => {
     updateProject(aiTargetIndex, "bullets", splitLines(aiResult));
   };
 
+  const openAiModal = (target: AiTarget, index = 0) => {
+    setAiTarget(target);
+    setAiTargetIndex(index);
+    setAiPrompt("");
+    setAiResult("");
+    setAiError("");
+    setAiModalOpen(true);
+  };
+
   const updateExperience = (
     index: number,
     field: keyof Experience,
@@ -745,6 +756,13 @@ const App = () => {
           <div className="scale-indicator">
             Auto-fit: {(scale * 100).toFixed(0)}%
         </div>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => setAiSettingsOpen(true)}
+          >
+            AI Settings
+          </button>
           <button
             type="button"
             className="secondary-button"
@@ -851,7 +869,16 @@ const App = () => {
               </div>
             </div>
             <div className="field">
-              <label htmlFor="summary">Summary</label>
+              <label htmlFor="summary">
+                Summary
+                <button
+                  type="button"
+                  className="inline-ai-button"
+                  onClick={() => openAiModal("summary")}
+                >
+                  Ask AI
+                </button>
+              </label>
               <textarea
                 id="summary"
                 rows={3}
@@ -865,7 +892,16 @@ const App = () => {
               />
             </div>
             <div className="field">
-              <label htmlFor="skills">Skills (comma separated)</label>
+              <label htmlFor="skills">
+                Skills (comma separated)
+                <button
+                  type="button"
+                  className="inline-ai-button"
+                  onClick={() => openAiModal("skills")}
+                >
+                  Ask AI
+                </button>
+              </label>
               <textarea
                 id="skills"
                 rows={3}
@@ -901,6 +937,16 @@ const App = () => {
             </div>
             {resume.experiences.map((experience, index) => (
               <div className="card" key={`experience-${index}`}>
+                <div className="card-header">
+                  <strong>Experience {index + 1}</strong>
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    onClick={() => openAiModal("experience", index)}
+                  >
+                    Ask AI
+                  </button>
+                </div>
                 <div className="field">
                   <label>Role</label>
                   <input
@@ -987,6 +1033,16 @@ const App = () => {
             </div>
             {resume.projects.map((project, index) => (
               <div className="card" key={`project-${index}`}>
+                <div className="card-header">
+                  <strong>Project {index + 1}</strong>
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    onClick={() => openAiModal("project", index)}
+                  >
+                    Ask AI
+                  </button>
+                </div>
                 <div className="field">
                   <label>Project name</label>
                   <input
@@ -1121,7 +1177,16 @@ const App = () => {
           <section className="form-section">
             <h3>Awards</h3>
             <div className="field">
-              <label htmlFor="awards">Awards (one per line)</label>
+              <label htmlFor="awards">
+                Awards (one per line)
+                <button
+                  type="button"
+                  className="inline-ai-button"
+                  onClick={() => openAiModal("awards")}
+                >
+                  Ask AI
+                </button>
+              </label>
               <textarea
                 id="awards"
                 rows={4}
@@ -1136,106 +1201,6 @@ const App = () => {
             </div>
           </section>
 
-          <section className="form-section ai-section">
-            <div className="section-header">
-              <h3>AI Writing Helper</h3>
-              <span className="ai-badge">GPT</span>
-            </div>
-            <div className="field">
-              <label htmlFor="ai-target">Target section</label>
-              <select
-                id="ai-target"
-                value={aiTarget}
-                onChange={(event) =>
-                  setAiTarget(event.target.value as AiTarget)
-                }
-              >
-                <option value="summary">Summary</option>
-                <option value="skills">Skills</option>
-                <option value="experience">Experience bullets</option>
-                <option value="project">Project bullets</option>
-                <option value="awards">Awards</option>
-              </select>
-            </div>
-            {(aiTarget === "experience" || aiTarget === "project") && (
-              <div className="field">
-                <label htmlFor="ai-target-index">Choose item</label>
-                <select
-                  id="ai-target-index"
-                  value={aiTargetIndex}
-                  onChange={(event) => setAiTargetIndex(Number(event.target.value))}
-                >
-                  {(aiTarget === "experience"
-                    ? resume.experiences
-                    : resume.projects
-                  ).map((item, index) => (
-                    <option key={`ai-item-${index}`} value={index}>
-                      {aiTarget === "experience"
-                        ? `${item.title || "Role"} - ${item.company || "Company"}`
-                        : item.name || `Project ${index + 1}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div className="field">
-              <label htmlFor="ai-prompt">Extra instructions (optional)</label>
-              <textarea
-                id="ai-prompt"
-                rows={3}
-                placeholder="Example: Focus on leadership and quantified impact."
-                value={aiPrompt}
-                onChange={(event) => setAiPrompt(event.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="ai-key">OpenAI API key</label>
-              <input
-                id="ai-key"
-                type="password"
-                placeholder="sk-..."
-                value={openAiKey}
-                onChange={(event) => {
-                  const value = event.target.value.trim();
-                  setOpenAiKey(value);
-                  if (value) {
-                    localStorage.setItem("resume_builder_openai_key", value);
-                  } else {
-                    localStorage.removeItem("resume_builder_openai_key");
-                  }
-                }}
-              />
-              <p className="ai-note">
-                Your key is stored locally in your browser. You can also set
-                VITE_OPENAI_API_KEY in a .env file.
-              </p>
-            </div>
-            <div className="ai-actions">
-              <button
-                type="button"
-                className="ghost-button"
-                onClick={handleGenerateAi}
-                disabled={aiLoading}
-              >
-                {aiLoading ? "Generating..." : "Generate suggestions"}
-              </button>
-              <button
-                type="button"
-                className="download-button"
-                onClick={handleApplyAi}
-                disabled={!aiResult.trim()}
-              >
-                Apply to form
-              </button>
-            </div>
-            {aiError && <p className="ai-error">{aiError}</p>}
-            {aiResult && (
-              <div className="ai-result">
-                <strong>Suggestion</strong>
-                <pre>{aiResult}</pre>
-              </div>
-            )}
-          </section>
         </aside>
 
         <div className="preview-panel">
@@ -1366,6 +1331,154 @@ const App = () => {
           </div>
         </div>
       </div>
+
+      {aiModalOpen && (
+        <div className="modal-overlay" onClick={() => setAiModalOpen(false)}>
+          <div
+            className="modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>AI Writing Helper</h3>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => setAiModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="field">
+              <label htmlFor="ai-modal-target">Target section</label>
+              <select
+                id="ai-modal-target"
+                value={aiTarget}
+                onChange={(event) =>
+                  setAiTarget(event.target.value as AiTarget)
+                }
+              >
+                <option value="summary">Summary</option>
+                <option value="skills">Skills</option>
+                <option value="experience">Experience bullets</option>
+                <option value="project">Project bullets</option>
+                <option value="awards">Awards</option>
+              </select>
+            </div>
+            {(aiTarget === "experience" || aiTarget === "project") && (
+              <div className="field">
+                <label htmlFor="ai-modal-index">Choose item</label>
+                <select
+                  id="ai-modal-index"
+                  value={aiTargetIndex}
+                  onChange={(event) =>
+                    setAiTargetIndex(Number(event.target.value))
+                  }
+                >
+                  {(aiTarget === "experience"
+                    ? resume.experiences
+                    : resume.projects
+                  ).map((item, index) => (
+                    <option key={`ai-modal-item-${index}`} value={index}>
+                      {aiTarget === "experience"
+                        ? `${item.title || "Role"} - ${item.company || "Company"}`
+                        : item.name || `Project ${index + 1}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="field">
+              <label htmlFor="ai-modal-prompt">Extra instructions</label>
+              <textarea
+                id="ai-modal-prompt"
+                rows={3}
+                placeholder="Example: Use action verbs and quantify impact."
+                value={aiPrompt}
+                onChange={(event) => setAiPrompt(event.target.value)}
+              />
+            </div>
+            <div className="ai-actions">
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={handleGenerateAi}
+                disabled={aiLoading}
+              >
+                {aiLoading ? "Generating..." : "Generate suggestions"}
+              </button>
+              <button
+                type="button"
+                className="download-button"
+                onClick={() => {
+                  handleApplyAi();
+                  setAiModalOpen(false);
+                }}
+                disabled={!aiResult.trim()}
+              >
+                Apply to form
+              </button>
+            </div>
+            {aiError && <p className="ai-error">{aiError}</p>}
+            {aiResult && (
+              <div className="ai-result">
+                <strong>Suggestion</strong>
+                <pre>{aiResult}</pre>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {aiSettingsOpen && (
+        <div className="modal-overlay" onClick={() => setAiSettingsOpen(false)}>
+          <div
+            className="modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>AI Settings</h3>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => setAiSettingsOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="field">
+              <label htmlFor="ai-key">OpenAI API key</label>
+              <input
+                id="ai-key"
+                type="password"
+                placeholder="sk-..."
+                value={openAiKey}
+                onChange={(event) => {
+                  const value = event.target.value.trim();
+                  setOpenAiKey(value);
+                  if (value) {
+                    localStorage.setItem("resume_builder_openai_key", value);
+                  } else {
+                    localStorage.removeItem("resume_builder_openai_key");
+                  }
+                }}
+              />
+              <p className="ai-note">
+                Your key is stored locally in your browser. You can also set
+                VITE_OPENAI_API_KEY in a .env file.
+              </p>
+            </div>
+            <div className="ai-result">
+              <strong>How to generate an OpenAI API key</strong>
+              <ol>
+                <li>Go to https://platform.openai.com/</li>
+                <li>Sign in and open API keys from the sidebar.</li>
+                <li>Click "Create new secret key".</li>
+                <li>Copy the key and paste it here.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
