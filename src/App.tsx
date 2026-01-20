@@ -8,6 +8,12 @@ import {
   View,
   pdf,
 } from "@react-pdf/renderer";
+import {
+  Document as DocxDocument,
+  Packer,
+  Paragraph,
+  TextRun,
+} from "docx";
 import "./App.css";
 
 const A4_HEIGHT_PX = 1123;
@@ -388,6 +394,151 @@ const App = () => {
     }
   };
 
+  const handleDownloadDocx = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const contactLine = [
+        resume.phone,
+        resume.email,
+        resume.linkedin,
+        resume.location,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      const skillList = resume.skills
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      const awardList = splitLines(resume.awards);
+
+      const sections: Paragraph[] = [
+        new Paragraph({
+          children: [
+            new TextRun({ text: resume.name, bold: true, size: 32 }),
+          ],
+        }),
+      ];
+
+      if (resume.title) {
+        sections.push(
+          new Paragraph({
+            children: [new TextRun({ text: resume.title, bold: true })],
+          })
+        );
+      }
+      if (contactLine) {
+        sections.push(new Paragraph({ children: [new TextRun(contactLine)] }));
+      }
+
+      if (resume.summary) {
+        sections.push(
+          new Paragraph({
+            children: [new TextRun({ text: "Summary", bold: true })],
+          }),
+          new Paragraph(resume.summary)
+        );
+      }
+
+      sections.push(
+        new Paragraph({ children: [new TextRun({ text: "Skills", bold: true })] }),
+        new Paragraph(skillList.join(", "))
+      );
+
+      sections.push(
+        new Paragraph({
+          children: [new TextRun({ text: "Experience", bold: true })],
+        })
+      );
+      resume.experiences.forEach((experience) => {
+        sections.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: experience.title || "Role", bold: true }),
+              new TextRun(` — ${experience.company || "Company"}`),
+              new TextRun(` (${experience.dates})`),
+            ],
+          })
+        );
+        experience.bullets.forEach((bullet) => {
+          sections.push(new Paragraph({ text: `• ${bullet}` }));
+        });
+      });
+
+      sections.push(
+        new Paragraph({
+          children: [new TextRun({ text: "Projects", bold: true })],
+        })
+      );
+      resume.projects.forEach((project) => {
+        sections.push(
+          new Paragraph({
+            children: [new TextRun({ text: project.name, bold: true })],
+          })
+        );
+        if (project.link) {
+          sections.push(new Paragraph(project.link));
+        }
+        project.bullets.forEach((bullet) => {
+          sections.push(new Paragraph({ text: `• ${bullet}` }));
+        });
+      });
+
+      sections.push(
+        new Paragraph({
+          children: [new TextRun({ text: "Education", bold: true })],
+        })
+      );
+      resume.education.forEach((entry) => {
+        sections.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: entry.school || "School", bold: true }),
+              new TextRun(` — ${entry.location}`),
+              new TextRun(` (${entry.year})`),
+            ],
+          })
+        );
+        if (entry.degree) {
+          sections.push(new Paragraph(entry.degree));
+        }
+      });
+
+      if (awardList.length > 0) {
+        sections.push(
+          new Paragraph({
+            children: [new TextRun({ text: "Awards", bold: true })],
+          })
+        );
+        awardList.forEach((award) => {
+          sections.push(new Paragraph({ text: `• ${award}` }));
+        });
+      }
+
+      const doc = new DocxDocument({
+        sections: [
+          {
+            properties: {},
+            children: sections,
+          },
+        ],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const safeName = resume.name.trim().replace(/\s+/g, "_") || "Resume";
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${safeName}_Resume.docx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const updateExperience = (
     index: number,
     field: keyof Experience,
@@ -454,6 +605,14 @@ const App = () => {
           <div className="scale-indicator">
             Auto-fit: {(scale * 100).toFixed(0)}%
         </div>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={handleDownloadDocx}
+            disabled={isDownloading}
+          >
+            {isDownloading ? "Preparing..." : "Download DOCX"}
+          </button>
         <button
           type="button"
           className="download-button"
