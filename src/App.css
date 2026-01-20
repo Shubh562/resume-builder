@@ -1,0 +1,147 @@
+.app {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #0f172a;
+}
+
+.toolbar {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.toolbar h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.toolbar p {
+  margin: 0;
+  color: #475569;
+}
+
+.download-button {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.download-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resume-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 48px;
+}
+
+.resume-sheet {
+  width: 794px;
+  background: #ffffff;
+  padding: 28px 34px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  border-radius: 6px;
+}
+
+.resume-header {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.resume-header h2 {
+  margin: 0 0 4px;
+  font-size: 26px;
+}
+
+.contact-line {
+  margin: 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+.resume-section {
+  margin-bottom: 16px;
+}
+
+.resume-section h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.role {
+  margin-bottom: 12px;
+}
+
+.role-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.role-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.role-header span {
+  color: #64748b;
+}
+
+.role-dates {
+  color: #475569;
+  font-weight: 600;
+}
+
+ul {
+  margin: 8px 0 0 18px;
+  padding: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.project-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.project a {
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.project a:hover {
+  text-decoration: underline;
+}
+
+.award-list {
+  margin-top: 6px;
+}
+
+@media print {
+  .toolbar {
+    display: none;
+  }
+
+  .resume-sheet {
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
