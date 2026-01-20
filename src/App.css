@@ -61,6 +61,8 @@
   display: grid;
   grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
   gap: 24px;
+  align-items: start;
+  height: calc(100vh - 150px);
 }
 
 .editor {
@@ -69,7 +71,8 @@
   border: 1px solid #e2e8f0;
   padding: 20px;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  height: fit-content;
+  height: 100%;
+  overflow: auto;
 }
 
 .form-section {
@@ -182,9 +185,8 @@
   border: 1px solid #e2e8f0;
   padding: 20px;
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
-  position: sticky;
-  top: 16px;
-  height: fit-content;
+  height: 100%;
+  overflow: auto;
 }
 
 .preview-header {
@@ -319,6 +321,7 @@ ul {
 @media (max-width: 1024px) {
   .content {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
   .resume-sheet {
@@ -328,7 +331,7 @@ ul {
   }
 
   .preview-panel {
-    position: static;
+    height: auto;
   }
 }
 
