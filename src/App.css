@@ -54,6 +54,21 @@
   background: linear-gradient(90deg, #1d4ed8, #0f766e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-icon {
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #dbeafe, #ccfbf1);
+  color: #0f172a;
 }
 
 .toolbar::after {
@@ -177,6 +192,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.section-icon {
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #dbeafe, #ccfbf1);
+  color: #0f172a;
 }
 
 .form-section h3::before {
@@ -325,6 +352,12 @@
   cursor: not-allowed;
 }
 
+.danger-inline {
+  width: auto;
+  padding: 4px 12px;
+  font-size: 11px;
+}
+
 .danger-button:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 8px 14px rgba(220, 38, 38, 0.18);
@@ -430,6 +463,9 @@
   color: #1e293b;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .role {

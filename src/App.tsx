@@ -44,6 +44,11 @@ type Education = {
   degree: string;
 };
 
+type CustomSection = {
+  title: string;
+  content: string;
+};
+
 type ResumeData = {
   name: string;
   title: string;
@@ -56,6 +61,7 @@ type ResumeData = {
   experiences: Experience[];
   projects: Project[];
   education: Education[];
+  customSections: CustomSection[];
   awards: string;
 };
 
@@ -110,6 +116,7 @@ const initialResume: ResumeData = {
       degree: "BE/B.Tech/BS",
     },
   ],
+  customSections: [],
   awards:
     "Team Spotlight Award - WellsFargo - 2024\nTeam Spotlight Award - WellsFargo - 2023\nWorking as One Award - Cognizant - 2021",
 };
@@ -239,6 +246,9 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
     .map((item) => item.trim())
     .filter(Boolean);
   const awardList = splitLines(data.awards);
+  const customSections = data.customSections.filter(
+    (section) => section.title.trim() || section.content.trim()
+  );
 
   return (
     <Document>
@@ -349,6 +359,31 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
           ))}
         </View>
 
+        {customSections.map((section, index) => {
+          const lines = splitLines(section.content);
+          return (
+            <View style={styles.section} key={`pdf-custom-${index}`}>
+              <Text style={styles.sectionTitle}>
+                {section.title || "Additional Section"}
+              </Text>
+              {lines.length > 1 ? (
+                <View style={styles.list}>
+                  {lines.map((line, lineIndex) => (
+                    <Text
+                      style={styles.listItem}
+                      key={`pdf-custom-${index}-${lineIndex}`}
+                    >
+                      • {line}
+                    </Text>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.paragraph}>{section.content}</Text>
+              )}
+            </View>
+          );
+        })}
+
         {awardList.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Awards</Text>
@@ -457,6 +492,9 @@ const App = () => {
         .map((item) => item.trim())
         .filter(Boolean);
       const awardList = splitLines(resume.awards);
+      const customSections = resume.customSections.filter(
+        (section) => section.title.trim() || section.content.trim()
+      );
 
       const sections: Paragraph[] = [
         new Paragraph({
@@ -547,6 +585,27 @@ const App = () => {
         );
         if (entry.degree) {
           sections.push(new Paragraph(entry.degree));
+        }
+      });
+
+      customSections.forEach((section) => {
+        sections.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: section.title || "Additional Section",
+                bold: true,
+              }),
+            ],
+          })
+        );
+        const lines = splitLines(section.content);
+        if (lines.length > 1) {
+          lines.forEach((line) => {
+            sections.push(new Paragraph({ text: `• ${line}` }));
+          });
+        } else if (section.content.trim()) {
+          sections.push(new Paragraph(section.content));
         }
       });
 
@@ -749,7 +808,10 @@ const App = () => {
     <div className="app">
       <div className="toolbar">
         <div>
-          <h1>Resume Builder</h1>
+          <h1>
+            <span className="app-icon">📄</span>
+            Resume Builder
+          </h1>
           <p>Fill the form, preview live, and export a single-page resume.</p>
         </div>
         <div className="toolbar-actions">
@@ -779,13 +841,16 @@ const App = () => {
         >
           {isDownloading ? "Preparing..." : "Download PDF"}
         </button>
-        </div>
       </div>
+            </div>
 
       <div className="content">
         <aside className="editor">
           <section className="form-section">
-            <h3>Basic Details</h3>
+            <h3>
+              <span className="section-icon">👤</span>
+              Basic Details
+            </h3>
             <div className="field">
               <label htmlFor="name">Full name</label>
               <input
@@ -918,7 +983,10 @@ const App = () => {
 
           <section className="form-section">
             <div className="section-header">
-            <h3>Experience</h3>
+              <h3>
+                <span className="section-icon">💼</span>
+                Experience
+              </h3>
               <button
                 type="button"
                 className="ghost-button"
@@ -934,7 +1002,7 @@ const App = () => {
               >
                 + Add
               </button>
-            </div>
+                </div>
             {resume.experiences.map((experience, index) => (
               <div className="card" key={`experience-${index}`}>
                 <div className="card-header">
@@ -946,7 +1014,7 @@ const App = () => {
                   >
                     Ask AI
                   </button>
-                </div>
+              </div>
                 <div className="field">
                   <label>Role</label>
                   <input
@@ -956,7 +1024,7 @@ const App = () => {
                       updateExperience(index, "title", event.target.value)
                     }
                   />
-                </div>
+            </div>
                 <div className="field-row">
                   <div className="field">
                     <label>Company</label>
@@ -1014,7 +1082,10 @@ const App = () => {
 
           <section className="form-section">
             <div className="section-header">
-              <h3>Projects</h3>
+              <h3>
+                <span className="section-icon">🚀</span>
+                Projects
+              </h3>
               <button
                 type="button"
                 className="ghost-button"
@@ -1030,7 +1101,7 @@ const App = () => {
               >
                 + Add
               </button>
-            </div>
+                </div>
             {resume.projects.map((project, index) => (
               <div className="card" key={`project-${index}`}>
                 <div className="card-header">
@@ -1042,7 +1113,7 @@ const App = () => {
                   >
                     Ask AI
                   </button>
-                </div>
+              </div>
                 <div className="field">
                   <label>Project name</label>
                   <input
@@ -1052,7 +1123,7 @@ const App = () => {
                       updateProject(index, "name", event.target.value)
                     }
                   />
-                </div>
+            </div>
                 <div className="field">
                   <label>Link</label>
                   <input
@@ -1096,7 +1167,10 @@ const App = () => {
 
           <section className="form-section">
             <div className="section-header">
-              <h3>Education</h3>
+              <h3>
+                <span className="section-icon">🎓</span>
+                Education
+              </h3>
               <button
                 type="button"
                 className="ghost-button"
@@ -1112,7 +1186,7 @@ const App = () => {
               >
                 + Add
               </button>
-            </div>
+                </div>
             {resume.education.map((entry, index) => (
               <div className="card" key={`education-${index}`}>
                 <div className="field">
@@ -1124,7 +1198,7 @@ const App = () => {
                       updateEducation(index, "school", event.target.value)
                     }
                   />
-                </div>
+              </div>
                 <div className="field-row">
                   <div className="field">
                     <label>Location</label>
@@ -1135,7 +1209,7 @@ const App = () => {
                         updateEducation(index, "location", event.target.value)
                       }
                     />
-                  </div>
+            </div>
                   <div className="field">
                     <label>Year</label>
                     <input
@@ -1175,7 +1249,10 @@ const App = () => {
           </section>
 
           <section className="form-section">
-            <h3>Awards</h3>
+            <h3>
+              <span className="section-icon">🏆</span>
+              Awards
+            </h3>
             <div className="field">
               <label htmlFor="awards">
                 Awards (one per line)
@@ -1198,7 +1275,89 @@ const App = () => {
                   }))
                 }
               />
+                </div>
+          </section>
+
+          <section className="form-section">
+            <div className="section-header">
+              <h3>
+                <span className="section-icon">➕</span>
+                Custom Sections
+              </h3>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() =>
+                  setResume((prev) => ({
+                    ...prev,
+                    customSections: [
+                      ...prev.customSections,
+                      { title: "", content: "" },
+                    ],
+                  }))
+                }
+              >
+                + Add
+              </button>
+              </div>
+            {resume.customSections.length === 0 && (
+              <p className="ai-note">Add any extra sections you want.</p>
+            )}
+            {resume.customSections.map((section, index) => (
+              <div className="card" key={`custom-${index}`}>
+                <div className="card-header">
+                  <strong>Section {index + 1}</strong>
+                  <button
+                    type="button"
+                    className="danger-button danger-inline"
+                    onClick={() =>
+                      setResume((prev) => ({
+                        ...prev,
+                        customSections: prev.customSections.filter(
+                          (_, i) => i !== index
+                        ),
+                      }))
+                    }
+                  >
+                    Remove
+                  </button>
             </div>
+                <div className="field">
+                  <label>Section title</label>
+                  <input
+                    type="text"
+                    value={section.title}
+                    onChange={(event) =>
+                      setResume((prev) => ({
+                        ...prev,
+                        customSections: prev.customSections.map((item, i) =>
+                          i === index
+                            ? { ...item, title: event.target.value }
+                            : item
+                        ),
+                      }))
+                    }
+                  />
+                </div>
+                <div className="field">
+                  <label>Content (one per line)</label>
+                  <textarea
+                    rows={3}
+                    value={section.content}
+                    onChange={(event) =>
+                      setResume((prev) => ({
+                        ...prev,
+                        customSections: prev.customSections.map((item, i) =>
+                          i === index
+                            ? { ...item, content: event.target.value }
+                            : item
+                        ),
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            ))}
           </section>
 
         </aside>
@@ -1245,42 +1404,54 @@ const App = () => {
 
                 {resume.summary && (
                   <section className="resume-section">
-                    <h3>Summary</h3>
+                  <h3>
+                    <span className="section-icon">📝</span>
+                    Summary
+                  </h3>
                     <p>{resume.summary}</p>
                   </section>
                 )}
 
                 <section className="resume-section">
-                  <h3>Skills</h3>
+                  <h3>
+                    <span className="section-icon">🧰</span>
+                    Skills
+                  </h3>
                   <p>{skillList.join(", ")}</p>
                 </section>
 
                 <section className="resume-section">
-                  <h3>Experience</h3>
+                  <h3>
+                    <span className="section-icon">💼</span>
+                    Experience
+                  </h3>
                   {resume.experiences.map((experience, index) => (
                     <div className="role" key={`preview-experience-${index}`}>
-                      <div className="role-header">
-                        <div>
+              <div className="role-header">
+                <div>
                           <strong>{experience.title || "Role"}</strong>
                           <span>{experience.company || "Company"}</span>
-                        </div>
+                </div>
                         <span className="role-dates">{experience.dates}</span>
-                      </div>
+              </div>
                       {experience.bullets.length > 0 && (
                         <ul>
                           {experience.bullets.map((bullet, bulletIndex) => (
                             <li key={`exp-${index}-bullet-${bulletIndex}`}>
                               {bullet}
-                            </li>
+                </li>
                           ))}
-                        </ul>
+              </ul>
                       )}
-                    </div>
+            </div>
                   ))}
           </section>
 
           <section className="resume-section">
-            <h3>Projects</h3>
+            <h3>
+              <span className="section-icon">🚀</span>
+              Projects
+            </h3>
                   {resume.projects.map((project, index) => (
                     <div className="project" key={`preview-project-${index}`}>
               <div className="project-title">
@@ -1301,23 +1472,29 @@ const App = () => {
           </section>
 
           <section className="resume-section">
-            <h3>Education</h3>
+            <h3>
+              <span className="section-icon">🎓</span>
+              Education
+            </h3>
                   {resume.education.map((entry, index) => (
                     <div className="education" key={`preview-education-${index}`}>
             <div className="role-header">
               <div>
                           <strong>{entry.school || "School"}</strong>
                           <span>{entry.location}</span>
-                        </div>
-                        <span className="role-dates">{entry.year}</span>
               </div>
+                        <span className="role-dates">{entry.year}</span>
+            </div>
                       {entry.degree && <p>{entry.degree}</p>}
             </div>
                   ))}
           </section>
 
           <section className="resume-section">
-            <h3>Awards</h3>
+            <h3>
+              <span className="section-icon">🏆</span>
+              Awards
+            </h3>
                   {awardList.length > 0 && (
             <ul className="award-list">
                       {awardList.map((award, index) => (
@@ -1326,8 +1503,33 @@ const App = () => {
             </ul>
                   )}
           </section>
-              </div>
-            </div>
+          {resume.customSections
+            .filter((section) => section.title.trim() || section.content.trim())
+            .map((section, index) => {
+              const lines = splitLines(section.content);
+              return (
+                <section
+                  className="resume-section"
+                  key={`preview-custom-${index}`}
+                >
+                  <h3>
+                    <span className="section-icon">➕</span>
+                    {section.title || "Additional Section"}
+                  </h3>
+                  {lines.length > 1 ? (
+                    <ul>
+                      {lines.map((line, lineIndex) => (
+                        <li key={`custom-${index}-${lineIndex}`}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{section.content}</p>
+                  )}
+                </section>
+              );
+            })}
+        </div>
+      </div>
           </div>
         </div>
       </div>
