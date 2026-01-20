@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Document,
   Link,
@@ -372,9 +378,18 @@ const App = () => {
   const [aiResult, setAiResult] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
-  const openAiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+  const [openAiKey, setOpenAiKey] = useState(
+    (import.meta.env.VITE_OPENAI_API_KEY as string | undefined) ?? ""
+  );
   const openAiModel =
     (import.meta.env.VITE_OPENAI_MODEL as string | undefined) ?? "gpt-4o-mini";
+
+  useEffect(() => {
+    const storedKey = localStorage.getItem("resume_builder_openai_key");
+    if (storedKey && !openAiKey) {
+      setOpenAiKey(storedKey);
+    }
+  }, [openAiKey]);
 
   const recomputeScale = useCallback(() => {
     const sheet = resumeRef.current;
@@ -1173,6 +1188,28 @@ const App = () => {
                 onChange={(event) => setAiPrompt(event.target.value)}
               />
             </div>
+            <div className="field">
+              <label htmlFor="ai-key">OpenAI API key</label>
+              <input
+                id="ai-key"
+                type="password"
+                placeholder="sk-..."
+                value={openAiKey}
+                onChange={(event) => {
+                  const value = event.target.value.trim();
+                  setOpenAiKey(value);
+                  if (value) {
+                    localStorage.setItem("resume_builder_openai_key", value);
+                  } else {
+                    localStorage.removeItem("resume_builder_openai_key");
+                  }
+                }}
+              />
+              <p className="ai-note">
+                Your key is stored locally in your browser. You can also set
+                VITE_OPENAI_API_KEY in a .env file.
+              </p>
+            </div>
             <div className="ai-actions">
               <button
                 type="button"
@@ -1191,9 +1228,6 @@ const App = () => {
                 Apply to form
               </button>
             </div>
-            {!openAiKey && (
-              <p className="ai-note">Add VITE_OPENAI_API_KEY in a .env file.</p>
-            )}
             {aiError && <p className="ai-error">{aiError}</p>}
             {aiResult && (
               <div className="ai-result">
