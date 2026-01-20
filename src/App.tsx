@@ -144,27 +144,14 @@ const App = () => {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
+        width: element.clientWidth,
+        height: element.clientHeight,
       });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "pt", "a4");
-      const imgWidth = A4_WIDTH_PT;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      if (imgHeight <= A4_HEIGHT_PT) {
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      } else {
-        let remainingHeight = imgHeight;
-        let position = 0;
-
-        while (remainingHeight > 0) {
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          remainingHeight -= A4_HEIGHT_PT;
-          if (remainingHeight > 0) {
-            pdf.addPage();
-            position -= A4_HEIGHT_PT;
-          }
-        }
-      }
+      // The resume sheet is A4-sized, so render exactly one page.
+      pdf.addImage(imgData, "PNG", 0, 0, A4_WIDTH_PT, A4_HEIGHT_PT);
 
       const safeName = resume.name.trim().replace(/\s+/g, "_") || "Resume";
       pdf.save(`${safeName}_Resume.pdf`);
