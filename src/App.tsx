@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import {
+  Document,
+  Link,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+  pdf,
+} from "@react-pdf/renderer";
 import "./App.css";
 
-const A4_WIDTH_PT = 595.28;
-const A4_HEIGHT_PT = 841.89;
 const A4_HEIGHT_PX = 1123;
 
 type Experience = {
@@ -103,6 +108,232 @@ const splitLines = (value: string) =>
     .map((line) => line.trim())
     .filter(Boolean);
 
+const createPdfStyles = (scaleValue: number) => {
+  const scale = scaleValue || 1;
+  return StyleSheet.create({
+    page: {
+      backgroundColor: "#ffffff",
+      paddingTop: 32 * scale,
+      paddingBottom: 32 * scale,
+      paddingHorizontal: 34 * scale,
+      fontFamily: "Helvetica",
+      fontSize: 9 * scale,
+      color: "#0f172a",
+    },
+    header: {
+      borderBottomWidth: 2 * scale,
+      borderBottomColor: "#e2e8f0",
+      paddingBottom: 10 * scale,
+      marginBottom: 14 * scale,
+    },
+    name: {
+      fontSize: 20 * scale,
+      fontWeight: 700,
+      marginBottom: 4 * scale,
+    },
+    title: {
+      fontSize: 11 * scale,
+      fontWeight: 600,
+      color: "#1e293b",
+      marginBottom: 4 * scale,
+    },
+    contact: {
+      fontSize: 9 * scale,
+      color: "#475569",
+    },
+    section: {
+      marginBottom: 12 * scale,
+    },
+    sectionTitle: {
+      fontSize: 10 * scale,
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: 0.6 * scale,
+      marginBottom: 6 * scale,
+      color: "#1e293b",
+    },
+    paragraph: {
+      fontSize: 9 * scale,
+      lineHeight: 1.4,
+    },
+    role: {
+      marginBottom: 8 * scale,
+    },
+    roleHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      gap: 8 * scale,
+      fontSize: 9 * scale,
+    },
+    roleCompany: {
+      color: "#64748b",
+      fontSize: 8.5 * scale,
+      marginTop: 2 * scale,
+    },
+    roleDates: {
+      color: "#475569",
+      fontWeight: 600,
+      fontSize: 8.5 * scale,
+    },
+    list: {
+      marginTop: 6 * scale,
+      paddingLeft: 12 * scale,
+    },
+    listItem: {
+      fontSize: 8.5 * scale,
+      lineHeight: 1.35,
+      marginBottom: 3 * scale,
+    },
+    projectTitle: {
+      fontWeight: 600,
+      fontSize: 9 * scale,
+      marginBottom: 2 * scale,
+    },
+    projectLink: {
+      color: "#2563eb",
+      fontSize: 8.5 * scale,
+      marginBottom: 2 * scale,
+    },
+    education: {
+      marginBottom: 8 * scale,
+    },
+  });
+};
+
+type ResumeDocumentProps = {
+  data: ResumeData;
+  scale: number;
+};
+
+const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
+  const styles = createPdfStyles(scale);
+  const contactLine = [
+    data.phone,
+    data.email,
+    data.linkedin,
+    data.location,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const skillList = data.skills
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const awardList = splitLines(data.awards);
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page} wrap={false}>
+        <View style={styles.header}>
+          <Text style={styles.name}>{data.name}</Text>
+          {data.title && <Text style={styles.title}>{data.title}</Text>}
+          {contactLine && <Text style={styles.contact}>{contactLine}</Text>}
+        </View>
+
+        {data.summary && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Summary</Text>
+            <Text style={styles.paragraph}>{data.summary}</Text>
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Skills</Text>
+          <Text style={styles.paragraph}>{skillList.join(", ")}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Experience</Text>
+          {data.experiences.map((experience, index) => (
+            <View style={styles.role} key={`pdf-experience-${index}`}>
+              <View style={styles.roleHeader}>
+                <View>
+                  <Text>{experience.title || "Role"}</Text>
+                  <Text style={styles.roleCompany}>
+                    {experience.company || "Company"}
+                  </Text>
+                </View>
+                <Text style={styles.roleDates}>{experience.dates}</Text>
+              </View>
+              {experience.bullets.length > 0 && (
+                <View style={styles.list}>
+                  {experience.bullets.map((bullet, bulletIndex) => (
+                    <Text
+                      style={styles.listItem}
+                      key={`pdf-exp-${index}-${bulletIndex}`}
+                    >
+                      • {bullet}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Projects</Text>
+          {data.projects.map((project, index) => (
+            <View style={styles.role} key={`pdf-project-${index}`}>
+              <Text style={styles.projectTitle}>
+                {project.name || "Project name"}
+              </Text>
+              {project.link && (
+                <Link style={styles.projectLink} src={project.link}>
+                  {project.link}
+                </Link>
+              )}
+              {project.bullets.length > 0 && (
+                <View style={styles.list}>
+                  {project.bullets.map((bullet, bulletIndex) => (
+                    <Text
+                      style={styles.listItem}
+                      key={`pdf-project-${index}-${bulletIndex}`}
+                    >
+                      • {bullet}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Education</Text>
+          {data.education.map((entry, index) => (
+            <View style={styles.education} key={`pdf-education-${index}`}>
+              <View style={styles.roleHeader}>
+                <View>
+                  <Text>{entry.school || "School"}</Text>
+                  <Text style={styles.roleCompany}>{entry.location}</Text>
+                </View>
+                <Text style={styles.roleDates}>{entry.year}</Text>
+              </View>
+              {entry.degree && (
+                <Text style={styles.paragraph}>{entry.degree}</Text>
+              )}
+            </View>
+          ))}
+        </View>
+
+        {awardList.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Awards</Text>
+            <View style={styles.list}>
+              {awardList.map((award, index) => (
+                <Text style={styles.listItem} key={`pdf-award-${index}`}>
+                  • {award}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
+      </Page>
+    </Document>
+  );
+};
+
 const App = () => {
   const resumeRef = useRef<HTMLDivElement>(null);
   const resumeContentRef = useRef<HTMLDivElement>(null);
@@ -135,26 +366,23 @@ const App = () => {
   }, [recomputeScale]);
 
   const handleDownload = async () => {
-    const element = resumeRef.current;
-    if (!element || isDownloading) return;
+    if (isDownloading) return;
 
     setIsDownloading(true);
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        width: element.clientWidth,
-        height: element.clientHeight,
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "pt", "a4");
-
-      // The resume sheet is A4-sized, so render exactly one page.
-      pdf.addImage(imgData, "PNG", 0, 0, A4_WIDTH_PT, A4_HEIGHT_PT);
-
       const safeName = resume.name.trim().replace(/\s+/g, "_") || "Resume";
-      pdf.save(`${safeName}_Resume.pdf`);
+      const pdfScale = scale || 1;
+      const blob = await pdf(
+        <ResumeDocument data={resume} scale={pdfScale} />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${safeName}_Resume.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
     } finally {
       setIsDownloading(false);
     }
@@ -225,15 +453,15 @@ const App = () => {
         <div className="toolbar-actions">
           <div className="scale-indicator">
             Auto-fit: {(scale * 100).toFixed(0)}%
-          </div>
-          <button
-            type="button"
-            className="download-button"
-            onClick={handleDownload}
-            disabled={isDownloading}
-          >
-            {isDownloading ? "Preparing..." : "Download PDF"}
-          </button>
+        </div>
+        <button
+          type="button"
+          className="download-button"
+          onClick={handleDownload}
+          disabled={isDownloading}
+        >
+          {isDownloading ? "Preparing..." : "Download PDF"}
+        </button>
         </div>
       </div>
 
@@ -355,7 +583,7 @@ const App = () => {
 
           <section className="form-section">
             <div className="section-header">
-              <h3>Experience</h3>
+            <h3>Experience</h3>
               <button
                 type="button"
                 className="ghost-button"
@@ -404,8 +632,8 @@ const App = () => {
                         updateExperience(index, "dates", event.target.value)
                       }
                     />
-                  </div>
-                </div>
+              </div>
+            </div>
                 <div className="field">
                   <label>Highlights (one per line)</label>
                   <textarea
@@ -562,8 +790,8 @@ const App = () => {
                         updateEducation(index, "year", event.target.value)
                       }
                     />
-                  </div>
-                </div>
+              </div>
+            </div>
                 <div className="field">
                   <label>Degree</label>
                   <input
@@ -664,55 +892,55 @@ const App = () => {
                       )}
                     </div>
                   ))}
-                </section>
+          </section>
 
-                <section className="resume-section">
-                  <h3>Projects</h3>
+          <section className="resume-section">
+            <h3>Projects</h3>
                   {resume.projects.map((project, index) => (
                     <div className="project" key={`preview-project-${index}`}>
-                      <div className="project-title">
+              <div className="project-title">
                         {project.name || "Project name"}
-                      </div>
+              </div>
                       {project.link && <a href={project.link}>{project.link}</a>}
                       {project.bullets.length > 0 && (
                         <ul>
                           {project.bullets.map((bullet, bulletIndex) => (
                             <li key={`project-${index}-bullet-${bulletIndex}`}>
                               {bullet}
-                            </li>
+                </li>
                           ))}
-                        </ul>
+              </ul>
                       )}
-                    </div>
+            </div>
                   ))}
-                </section>
+          </section>
 
-                <section className="resume-section">
-                  <h3>Education</h3>
+          <section className="resume-section">
+            <h3>Education</h3>
                   {resume.education.map((entry, index) => (
                     <div className="education" key={`preview-education-${index}`}>
-                      <div className="role-header">
-                        <div>
+            <div className="role-header">
+              <div>
                           <strong>{entry.school || "School"}</strong>
                           <span>{entry.location}</span>
                         </div>
                         <span className="role-dates">{entry.year}</span>
-                      </div>
+              </div>
                       {entry.degree && <p>{entry.degree}</p>}
-                    </div>
+            </div>
                   ))}
-                </section>
+          </section>
 
-                <section className="resume-section">
-                  <h3>Awards</h3>
+          <section className="resume-section">
+            <h3>Awards</h3>
                   {awardList.length > 0 && (
-                    <ul className="award-list">
+            <ul className="award-list">
                       {awardList.map((award, index) => (
                         <li key={`award-${index}`}>{award}</li>
                       ))}
-                    </ul>
+            </ul>
                   )}
-                </section>
+          </section>
               </div>
             </div>
           </div>
