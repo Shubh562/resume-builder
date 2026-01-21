@@ -183,12 +183,12 @@ const createPdfStyles = (scaleValue: number) => {
       lineHeight: 1.4,
     },
     role: {
-      marginBottom: 5 * scale,
+      marginBottom: 2 * scale,
     },
     roleHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
-      gap: 8 * scale,
+      gap: 4 * scale,
       fontSize: 9 * scale,
     },
     roleCompany: {
@@ -202,13 +202,13 @@ const createPdfStyles = (scaleValue: number) => {
       fontSize: 8.5 * scale,
     },
     list: {
-      marginTop: 4 * scale,
+      marginTop: 1 * scale,
       paddingLeft: 10 * scale,
     },
     listItem: {
       fontSize: 8.5 * scale,
-      lineHeight: 1.35,
-      marginBottom: 2 * scale,
+      lineHeight: 1.3,
+      marginBottom: 0.5 * scale,
     },
     projectTitle: {
       fontWeight: 600,

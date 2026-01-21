@@ -469,7 +469,7 @@
 }
 
 .role {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .role-header {
@@ -495,10 +495,10 @@
 }
 
 ul {
-  margin: 6px 0 0 18px;
+  margin: 2px 0 0 18px;
   padding: 0;
   font-size: 13.5px;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .project {
