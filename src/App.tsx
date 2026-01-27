@@ -31,12 +31,6 @@ type Experience = {
   bullets: string[];
 };
 
-type Project = {
-  name: string;
-  link: string;
-  bullets: string[];
-};
-
 type Education = {
   school: string;
   location: string;
@@ -59,7 +53,6 @@ type ResumeData = {
   summary: string;
   skills: string;
   experiences: Experience[];
-  projects: Project[];
   education: Education[];
   customSections: CustomSection[];
   awards: string;
@@ -70,10 +63,10 @@ const initialResume: ResumeData = {
   title: "Senior Member Of Technical Staff",
   phone: "+91-7870577070",
   email: "kumarshubham562@gmail.com",
-  linkedin: "linkedin.com/in/shubham-soni",
+  linkedin: "https://www.linkedin.com/in/shubsoni/",
   location: "Bhubaneswar, India",
   summary:
-    "Backend-focused engineer with experience in scalable systems, ITSM workflows, and full-stack delivery.",
+    "Backend Software Engineer with 5+ years of experience designing and scaling distributed, high-performance systems using Java, Spring Boot, SQL, and Microservices. Proven expertise in building cloud-native, fault-tolerant platforms, optimizing SLIs/SLOs, working with large-scale data systems, and delivering customer-impacting features. Strong background in system design, A/B experimentation support, and cross-functional collaboration.",
   skills:
     "Java, SQL, Spring Boot, Microservices, React, HTML, CSS, MongoDB, MySQL, JavaScript, Jenkins, Generative AI, Prompt Engineering, Oracle Cloud (OCI), Splunk, HTTP, SQL Server, Machine Learning, TypeScript, Python",
   experiences: [
@@ -82,10 +75,13 @@ const initialResume: ResumeData = {
       company: "Salesforce",
       dates: "Nov 2024 - Present",
       bullets: [
-        "Owned technical design and end-to-end implementation of Incident Management service operations for Salesforce ITSM.",
-        "Implemented Major Incident Management workflows for faster critical incident handling and resolution.",
-        "Designed parent-child incident relationships with automated closure using message queues.",
-        "Built core data model entities for the Major Incident module, aligned with platform standards.",
+        "Designed and executed an end-to-end benchmarking framework comparing a fine-tuned Phi-3.5 (QLoRA) Small Language Model against GPT-4o-mini for complex ITSM reasoning tasks, including ticket classification, ontology mapping, and ITIL v4 compliance.",
+        "Demonstrated 97.4% BERTScore F1 and 96.7% semantic similarity, establishing functional parity with GPT-4o-mini while reducing model size to ~2.1 GB and inference VRAM to ~9.5 GB.",
+        "Worked on Agentforce by creating AI-powered agents and adding proactive action buttons for AI-based suggestions, enabling intelligent recommendations and faster decision-making within ITSM processes.",
+        "Designed and implemented Major Incident Management workflows, ensuring efficient handling and resolution of critical incidents.",
+        "Designed and developed core data model entities for the Major Incident Management module, aligning with platform standards.",
+        "Designed a headless, actor-based background execution framework to support long-running, multi-day ITSM and compliance workflows, decoupled from user sessions and record lifecycles.",
+        "Enhanced and customized Incident and Problem Management dashboards, providing improved visibility and actionable insights for ITSM operations.",
       ],
     },
     {
@@ -93,18 +89,38 @@ const initialResume: ResumeData = {
       company: "Oracle",
       dates: "Sep 2024 - Oct 2024",
       bullets: [
-        "Designed a Java-based system for dynamic allocation and deallocation of cloud services based on requirements.",
+        "Built Java-based distributed services for dynamic cloud resource provisioning and de-provisioning.",
+        "Improved system scalability and cost efficiency through optimized scheduling and capacity algorithms.",
       ],
     },
-  ],
-  projects: [
     {
-      name: "Robust Banking System for Secure and Efficient Financial Transactions",
-      link: "https://github.com/Shubh562/DBS-Ledger",
+      title: "Software Engineer (AVP)",
+      company: "Wells Fargo",
+      dates: "Feb 2022 – Sep 2024",
       bullets: [
-        "Built a Spring Boot application with REST APIs for account management, deposits/withdrawals, and funds transfer.",
-        "Used repository, factory, and strategy patterns for maintainable code.",
-        "Implemented JWT authentication and authorization to protect sensitive data.",
+        "Developed high-throughput backend services using Java, Spring Boot, MongoDB, and REST, serving millions of transactions.",
+        "Improved latency by 25% using advanced caching, indexing, and query optimization on relational and NoSQL systems.",
+        "Designed fault-tolerant microservice architecture with containerization (Docker) and orchestration (Kubernetes).",
+        "Led development of a blockchain-based distributed ledger platform using Corda and DLT.",
+        "Supported experimentation frameworks and feature rollouts aligned with A/B testing strategies.",
+      ],
+    },
+    {
+      title: "Application Engineer 2",
+      company: "Oracle",
+      dates: "Mar 2021 – Feb 2022",
+      bullets: [
+        "Built enterprise-scale backend systems using Java, PL/SQL, Spring, and Oracle E-Business Suite.",
+        "Optimized database performance and API throughput, improving system efficiency by 20%.",
+      ],
+    },
+    {
+      title: "Programmer Analyst",
+      company: "Cognizant",
+      dates: "Jan 2020 – Mar 2021",
+      bullets: [
+        "Developed scalable Java web applications and REST APIs with high availability and security.",
+        "Contributed to system design, performance tuning, and frontend integration.",
       ],
     },
   ],
@@ -115,10 +131,16 @@ const initialResume: ResumeData = {
       year: "2020",
       degree: "BE/B.Tech/BS",
     },
+    {
+      school: "Woolf",
+      location: "Europe",
+      year: "2025",
+      degree: "Ms in computer science",
+    },
   ],
   customSections: [],
   awards:
-    "Team Spotlight Award - WellsFargo - 2024\nTeam Spotlight Award - WellsFargo - 2023\nWorking as One Award - Cognizant - 2021",
+    "Team Spotlight Award - WellsFargo - 2023, 2024\nWorking as One Award - Cognizant - 2021",
 };
 
 const splitLines = (value: string) =>
@@ -132,7 +154,7 @@ const normalizeUrl = (value: string) => {
   return value.startsWith("http") ? value : `https://${value}`;
 };
 
-type AiTarget = "summary" | "skills" | "experience" | "project" | "awards";
+type AiTarget = "summary" | "skills" | "experience" | "awards";
 
 const createPdfStyles = (scaleValue: number) => {
   const scale = scaleValue || 1;
@@ -303,34 +325,6 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
                     <Text
                       style={styles.listItem}
                       key={`pdf-exp-${index}-${bulletIndex}`}
-                    >
-                      • {bullet}
-                    </Text>
-                  ))}
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Projects</Text>
-          {data.projects.map((project, index) => (
-            <View style={styles.role} key={`pdf-project-${index}`}>
-              <Text style={styles.projectTitle}>
-                {project.name || "Project name"}
-              </Text>
-              {project.link && (
-                <Link style={styles.projectLink} src={project.link}>
-                  {project.link}
-                </Link>
-              )}
-              {project.bullets.length > 0 && (
-                <View style={styles.list}>
-                  {project.bullets.map((bullet, bulletIndex) => (
-                    <Text
-                      style={styles.listItem}
-                      key={`pdf-project-${index}-${bulletIndex}`}
                     >
                       • {bullet}
                     </Text>
@@ -551,25 +545,6 @@ const App = () => {
 
       sections.push(
         new Paragraph({
-          children: [new TextRun({ text: "Projects", bold: true })],
-        })
-      );
-      resume.projects.forEach((project) => {
-        sections.push(
-          new Paragraph({
-            children: [new TextRun({ text: project.name, bold: true })],
-          })
-        );
-        if (project.link) {
-          sections.push(new Paragraph(project.link));
-        }
-        project.bullets.forEach((bullet) => {
-          sections.push(new Paragraph({ text: `• ${bullet}` }));
-        });
-      });
-
-      sections.push(
-        new Paragraph({
           children: [new TextRun({ text: "Education", bold: true })],
         })
       );
@@ -662,13 +637,6 @@ const App = () => {
         : "Role details not provided.";
       return `${baseContext}\n${context}\nWrite 3-5 achievement-focused bullet points with measurable impact.`;
     }
-    if (aiTarget === "project") {
-      const project = resume.projects[aiTargetIndex];
-      const context = project
-        ? `Project: ${project.name}\nLink: ${project.link}`
-        : "Project details not provided.";
-      return `${baseContext}\n${context}\nWrite 2-3 concise bullets that explain the project impact and tech used.`;
-    }
     return `${baseContext}\nCreate 2-3 resume award entries in a clean format.`;
   };
 
@@ -737,7 +705,6 @@ const App = () => {
       updateExperience(aiTargetIndex, "bullets", splitLines(aiResult));
       return;
     }
-    updateProject(aiTargetIndex, "bullets", splitLines(aiResult));
   };
 
   const openAiModal = (target: AiTarget, index = 0) => {
@@ -758,19 +725,6 @@ const App = () => {
       ...prev,
       experiences: prev.experiences.map((experience, i) =>
         i === index ? { ...experience, [field]: value } : experience
-      ),
-    }));
-  };
-
-  const updateProject = (
-    index: number,
-    field: keyof Project,
-    value: string | string[]
-  ) => {
-    setResume((prev) => ({
-      ...prev,
-      projects: prev.projects.map((project, i) =>
-        i === index ? { ...project, [field]: value } : project
       ),
     }));
   };
@@ -1083,91 +1037,6 @@ const App = () => {
           <section className="form-section">
             <div className="section-header">
               <h3>
-                <span className="section-icon">🚀</span>
-                Projects
-              </h3>
-              <button
-                type="button"
-                className="ghost-button"
-                onClick={() =>
-                  setResume((prev) => ({
-                    ...prev,
-                    projects: [
-                      ...prev.projects,
-                      { name: "", link: "", bullets: [] },
-                    ],
-                  }))
-                }
-              >
-                + Add
-              </button>
-                </div>
-            {resume.projects.map((project, index) => (
-              <div className="card" key={`project-${index}`}>
-                <div className="card-header">
-                  <strong>Project {index + 1}</strong>
-                  <button
-                    type="button"
-                    className="ghost-button"
-                    onClick={() => openAiModal("project", index)}
-                  >
-                    Ask AI
-                  </button>
-              </div>
-                <div className="field">
-                  <label>Project name</label>
-                  <input
-                    type="text"
-                    value={project.name}
-                    onChange={(event) =>
-                      updateProject(index, "name", event.target.value)
-                    }
-                  />
-            </div>
-                <div className="field">
-                  <label>Link</label>
-                  <input
-                    type="text"
-                    value={project.link}
-                    onChange={(event) =>
-                      updateProject(index, "link", event.target.value)
-                    }
-                  />
-                </div>
-                <div className="field">
-                  <label>Highlights (one per line)</label>
-                  <textarea
-                    rows={4}
-                    value={project.bullets.join("\n")}
-                    onChange={(event) =>
-                      updateProject(
-                        index,
-                        "bullets",
-                        splitLines(event.target.value)
-                      )
-                    }
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="danger-button"
-                  onClick={() =>
-                    setResume((prev) => ({
-                      ...prev,
-                      projects: prev.projects.filter((_, i) => i !== index),
-                    }))
-                  }
-                  disabled={resume.projects.length === 1}
-                >
-                  Remove Project
-                </button>
-              </div>
-            ))}
-          </section>
-
-          <section className="form-section">
-            <div className="section-header">
-              <h3>
                 <span className="section-icon">🎓</span>
                 Education
               </h3>
@@ -1449,30 +1318,6 @@ const App = () => {
 
           <section className="resume-section">
             <h3>
-              <span className="section-icon">🚀</span>
-              Projects
-            </h3>
-                  {resume.projects.map((project, index) => (
-                    <div className="project" key={`preview-project-${index}`}>
-              <div className="project-title">
-                        {project.name || "Project name"}
-              </div>
-                      {project.link && <a href={project.link}>{project.link}</a>}
-                      {project.bullets.length > 0 && (
-                        <ul>
-                          {project.bullets.map((bullet, bulletIndex) => (
-                            <li key={`project-${index}-bullet-${bulletIndex}`}>
-                              {bullet}
-                </li>
-                          ))}
-              </ul>
-                      )}
-            </div>
-                  ))}
-          </section>
-
-          <section className="resume-section">
-            <h3>
               <span className="section-icon">🎓</span>
               Education
             </h3>
@@ -1562,11 +1407,10 @@ const App = () => {
                 <option value="summary">Summary</option>
                 <option value="skills">Skills</option>
                 <option value="experience">Experience bullets</option>
-                <option value="project">Project bullets</option>
                 <option value="awards">Awards</option>
               </select>
             </div>
-            {(aiTarget === "experience" || aiTarget === "project") && (
+            {aiTarget === "experience" && (
               <div className="field">
                 <label htmlFor="ai-modal-index">Choose item</label>
                 <select
@@ -1576,19 +1420,11 @@ const App = () => {
                     setAiTargetIndex(Number(event.target.value))
                   }
                 >
-                  {aiTarget === "experience"
-                    ? resume.experiences.map((item, index) => (
-                        <option key={`ai-modal-exp-${index}`} value={index}>
-                          {`${item.title || "Role"} - ${
-                            item.company || "Company"
-                          }`}
-                        </option>
-                      ))
-                    : resume.projects.map((item, index) => (
-                        <option key={`ai-modal-proj-${index}`} value={index}>
-                          {item.name || `Project ${index + 1}`}
-                        </option>
-                      ))}
+                  {resume.experiences.map((item, index) => (
+                    <option key={`ai-modal-exp-${index}`} value={index}>
+                      {`${item.title || "Role"} - ${item.company || "Company"}`}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
