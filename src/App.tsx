@@ -23,6 +23,7 @@ import {
 import "./App.css";
 
 const A4_HEIGHT_PX = 1123;
+const MIN_SCALE = 0.82;
 
 type Experience = {
   title: string;
@@ -165,7 +166,7 @@ const createPdfStyles = (scaleValue: number) => {
       paddingBottom: 24 * scale,
       paddingHorizontal: 34 * scale,
       fontFamily: "Helvetica",
-      fontSize: 9 * scale,
+      fontSize: 11 * scale,
       color: "#0f172a",
     },
     header: {
@@ -175,25 +176,25 @@ const createPdfStyles = (scaleValue: number) => {
       marginBottom: 10 * scale,
     },
     name: {
-      fontSize: 20 * scale,
+      fontSize: 22 * scale,
       fontWeight: 700,
       marginBottom: 4 * scale,
     },
     title: {
-      fontSize: 11 * scale,
+      fontSize: 12 * scale,
       fontWeight: 600,
       color: "#1e293b",
       marginBottom: 4 * scale,
     },
     contact: {
-      fontSize: 9 * scale,
+      fontSize: 10.5 * scale,
       color: "#475569",
     },
     section: {
       marginBottom: 8 * scale,
     },
     sectionTitle: {
-      fontSize: 10 * scale,
+      fontSize: 12 * scale,
       fontWeight: 700,
       textTransform: "uppercase",
       letterSpacing: 0.5 * scale,
@@ -201,8 +202,8 @@ const createPdfStyles = (scaleValue: number) => {
       color: "#1e293b",
     },
     paragraph: {
-      fontSize: 9 * scale,
-      lineHeight: 1.4,
+      fontSize: 11 * scale,
+      lineHeight: 1.35,
     },
     role: {
       marginBottom: 2 * scale,
@@ -211,36 +212,26 @@ const createPdfStyles = (scaleValue: number) => {
       flexDirection: "row",
       justifyContent: "space-between",
       gap: 4 * scale,
-      fontSize: 9 * scale,
+      fontSize: 11 * scale,
     },
     roleCompany: {
       color: "#64748b",
-      fontSize: 8.5 * scale,
+      fontSize: 10 * scale,
       marginTop: 2 * scale,
     },
     roleDates: {
       color: "#475569",
       fontWeight: 600,
-      fontSize: 8.5 * scale,
+      fontSize: 10.5 * scale,
     },
     list: {
       marginTop: 1 * scale,
       paddingLeft: 10 * scale,
     },
     listItem: {
-      fontSize: 8.5 * scale,
+      fontSize: 10.5 * scale,
       lineHeight: 1.3,
       marginBottom: 0.5 * scale,
-    },
-    projectTitle: {
-      fontWeight: 600,
-      fontSize: 9 * scale,
-      marginBottom: 1 * scale,
-    },
-    projectLink: {
-      color: "#2563eb",
-      fontSize: 8.5 * scale,
-      marginBottom: 1 * scale,
     },
     education: {
       marginBottom: 5 * scale,
@@ -431,8 +422,9 @@ const App = () => {
     const contentHeight = content.scrollHeight;
     if (!contentHeight) return;
     const nextScale = Math.min(1, availableHeight / contentHeight);
-    if (Math.abs(nextScale - scale) > 0.01) {
-      setScale(nextScale);
+    const clampedScale = Math.max(MIN_SCALE, nextScale);
+    if (Math.abs(clampedScale - scale) > 0.01) {
+      setScale(clampedScale);
     }
   }, [scale]);
 
@@ -452,7 +444,7 @@ const App = () => {
     setIsDownloading(true);
     try {
       const safeName = resume.name.trim().replace(/\s+/g, "_") || "Resume";
-      const pdfScale = scale || 1;
+      const pdfScale = Math.max(scale || 1, MIN_SCALE);
       const blob = await pdf(
         <ResumeDocument data={resume} scale={pdfScale} />
       ).toBlob();
@@ -1273,27 +1265,18 @@ const App = () => {
 
                 {resume.summary && (
                   <section className="resume-section">
-                  <h3>
-                    <span className="section-icon">📝</span>
-                    Summary
-                  </h3>
+                  <h3>Summary</h3>
                     <p>{resume.summary}</p>
                   </section>
                 )}
 
                 <section className="resume-section">
-                  <h3>
-                    <span className="section-icon">🧰</span>
-                    Skills
-                  </h3>
+                  <h3>Skills</h3>
                   <p>{skillList.join(", ")}</p>
                 </section>
 
                 <section className="resume-section">
-                  <h3>
-                    <span className="section-icon">💼</span>
-                    Experience
-                  </h3>
+                  <h3>Experience</h3>
                   {resume.experiences.map((experience, index) => (
                     <div className="role" key={`preview-experience-${index}`}>
               <div className="role-header">
@@ -1317,10 +1300,7 @@ const App = () => {
           </section>
 
           <section className="resume-section">
-            <h3>
-              <span className="section-icon">🎓</span>
-              Education
-            </h3>
+            <h3>Education</h3>
                   {resume.education.map((entry, index) => (
                     <div className="education" key={`preview-education-${index}`}>
             <div className="role-header">
@@ -1336,10 +1316,7 @@ const App = () => {
           </section>
 
           <section className="resume-section">
-            <h3>
-              <span className="section-icon">🏆</span>
-              Awards
-            </h3>
+            <h3>Awards</h3>
                   {awardList.length > 0 && (
             <ul className="award-list">
                       {awardList.map((award, index) => (
@@ -1357,10 +1334,7 @@ const App = () => {
                   className="resume-section"
                   key={`preview-custom-${index}`}
                 >
-                  <h3>
-                    <span className="section-icon">➕</span>
-                    {section.title || "Additional Section"}
-                  </h3>
+                  <h3>{section.title || "Additional Section"}</h3>
                   {lines.length > 1 ? (
                     <ul>
                       {lines.map((line, lineIndex) => (

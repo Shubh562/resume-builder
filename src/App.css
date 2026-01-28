@@ -417,6 +417,9 @@
 .resume-content {
   transform-origin: top left;
   width: 100%;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .resume-header {
