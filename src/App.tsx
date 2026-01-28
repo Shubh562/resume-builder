@@ -65,7 +65,7 @@ const initialResume: ResumeData = {
   phone: "+91-7870577070",
   email: "kumarshubham562@gmail.com",
   linkedin: "https://www.linkedin.com/in/shubsoni/",
-  location: "Bhubaneswar, India",
+  location: "Hyderabad, India",
   summary:
     "Backend Software Engineer with 5+ years of experience designing and scaling distributed, high-performance systems using Java, Spring Boot, SQL, and Microservices. Proven expertise in building cloud-native, fault-tolerant platforms, optimizing SLIs/SLOs, working with large-scale data systems, and delivering customer-impacting features. Strong background in system design, A/B experimentation support, and cross-functional collaboration.",
   skills:
