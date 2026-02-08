@@ -410,7 +410,7 @@
   padding: 28px 34px;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
   border-radius: 6px;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid #e2e8f0;
 }
 
