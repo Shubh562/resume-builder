@@ -329,10 +329,10 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
           {data.education.map((entry, index) => (
             <View style={styles.education} key={`pdf-education-${index}`}>
               <View style={styles.roleHeader}>
-                <View>
-                  <Text>{entry.school || "School"}</Text>
-                  <Text style={styles.roleCompany}>{entry.location}</Text>
-                </View>
+                <Text>
+                  {entry.school || "School"}
+                  {entry.location ? `, ${entry.location}` : ""}
+                </Text>
                 <Text style={styles.roleDates}>{entry.year}</Text>
               </View>
               {entry.degree && (
@@ -545,7 +545,7 @@ const App = () => {
           new Paragraph({
             children: [
               new TextRun({ text: entry.school || "School", bold: true }),
-              new TextRun(` — ${entry.location}`),
+              entry.location ? new TextRun(`, ${entry.location}`) : new TextRun(""),
               new TextRun(` (${entry.year})`),
             ],
           })
@@ -1307,10 +1307,12 @@ const App = () => {
                     <div className="education" key={`preview-education-${index}`}>
             <div className="role-header">
               <div>
-                          <strong>{entry.school || "School"}</strong>
-                          <span>{entry.location}</span>
+                <strong>
+                  {entry.school || "School"}
+                  {entry.location ? `, ${entry.location}` : ""}
+                </strong>
               </div>
-                        <span className="role-dates">{entry.year}</span>
+              <span className="role-dates">{entry.year}</span>
             </div>
                       {entry.degree && <p>{entry.degree}</p>}
             </div>
