@@ -483,9 +483,11 @@
 }
 
 .role-header > div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: inline;
+}
+
+.company-bold {
+  font-weight: 700;
 }
 
 .role-header span {

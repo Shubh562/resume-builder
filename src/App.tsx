@@ -224,6 +224,9 @@ const createPdfStyles = (scaleValue: number) => {
       fontWeight: 600,
       fontSize: 10.5 * scale,
     },
+    companyBold: {
+      fontWeight: 700,
+    },
     list: {
       marginTop: 1 * scale,
       paddingLeft: 10 * scale,
@@ -304,7 +307,10 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
               <View style={styles.roleHeader}>
                 <Text>
                   {experience.title || "Role"}
-                  {experience.company ? `, ${experience.company}` : ""}
+                  {experience.company ? ", " : ""}
+                  {experience.company ? (
+                    <Text style={styles.companyBold}>{experience.company}</Text>
+                  ) : null}
                 </Text>
                 <Text style={styles.roleDates}>{experience.dates}</Text>
               </View>
@@ -524,7 +530,7 @@ const App = () => {
             children: [
               new TextRun({ text: experience.title || "Role", bold: true }),
               experience.company
-                ? new TextRun(`, ${experience.company}`)
+                ? new TextRun({ text: `, ${experience.company}`, bold: true })
                 : new TextRun(""),
               new TextRun(` (${experience.dates})`),
             ],
@@ -1281,10 +1287,11 @@ const App = () => {
                     <div className="role" key={`preview-experience-${index}`}>
               <div className="role-header">
                 <div>
-                  <strong>
-                    {experience.title || "Role"}
-                    {experience.company ? `, ${experience.company}` : ""}
-                  </strong>
+                  <strong>{experience.title || "Role"}</strong>
+                  {experience.company ? ", " : ""}
+                  {experience.company ? (
+                    <strong className="company-bold">{experience.company}</strong>
+                  ) : null}
                 </div>
                 <span className="role-dates">{experience.dates}</span>
               </div>
