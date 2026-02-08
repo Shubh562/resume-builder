@@ -302,12 +302,10 @@ const ResumeDocument = ({ data, scale }: ResumeDocumentProps) => {
           {data.experiences.map((experience, index) => (
             <View style={styles.role} key={`pdf-experience-${index}`}>
               <View style={styles.roleHeader}>
-                <View>
-                  <Text>{experience.title || "Role"}</Text>
-                  <Text style={styles.roleCompany}>
-                    {experience.company || "Company"}
-                  </Text>
-                </View>
+                <Text>
+                  {experience.title || "Role"}
+                  {experience.company ? `, ${experience.company}` : ""}
+                </Text>
                 <Text style={styles.roleDates}>{experience.dates}</Text>
               </View>
               {experience.bullets.length > 0 && (
@@ -525,7 +523,9 @@ const App = () => {
           new Paragraph({
             children: [
               new TextRun({ text: experience.title || "Role", bold: true }),
-              new TextRun(` — ${experience.company || "Company"}`),
+              experience.company
+                ? new TextRun(`, ${experience.company}`)
+                : new TextRun(""),
               new TextRun(` (${experience.dates})`),
             ],
           })
@@ -1281,10 +1281,12 @@ const App = () => {
                     <div className="role" key={`preview-experience-${index}`}>
               <div className="role-header">
                 <div>
-                          <strong>{experience.title || "Role"}</strong>
-                          <span>{experience.company || "Company"}</span>
+                  <strong>
+                    {experience.title || "Role"}
+                    {experience.company ? `, ${experience.company}` : ""}
+                  </strong>
                 </div>
-                        <span className="role-dates">{experience.dates}</span>
+                <span className="role-dates">{experience.dates}</span>
               </div>
                       {experience.bullets.length > 0 && (
                         <ul>
